@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+
+# Vite build output
+dist/
+
+# Logs
+*.log
+
+# .env files (sensitive information)
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.idea/
+.vscode/
+
+# MacOS Finder
+.DS_Store
+
+# Windows Thumbs.db
+Thumbs.db
+
+# npm package-lock
+package-lock.json
+
+# TypeScript output
+*.tsbuildinfo
