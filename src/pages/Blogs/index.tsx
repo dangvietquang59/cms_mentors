@@ -1,7 +1,16 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, message, Modal, Space, Table } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  message,
+  Modal,
+  Space,
+  Table,
+  Typography,
+} from "antd";
 import { useEffect, useState } from "react";
 import { formatDate } from "../../utils/functions/formatDate";
 import SearchCustom from "../../components/SearchCustom";
@@ -11,35 +20,44 @@ import { formValidation } from "../../utils/constants/formValidation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import ConfirmModal from "../../components/ConfirmModal";
-import { JobTitleType } from "../../types/common/jobTitle";
-import { useFetchJobtitle } from "../../apis/swr/useFetchJobtitle";
 import jobTitleApi from "../../apis/axios/jobTitleApi";
+import { useFetchBlogs } from "../../apis/swr/useFetchBlogs";
+import { BlogType } from "../../types/common/blog";
+import Editor from "../../components/Editor";
+import blogApi from "../../apis/axios/blogApi";
 
 function Blogs() {
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(10);
-  const [selectedRows, setSelectedRows] = useState<JobTitleType[]>([]);
+  const [selectedRows, setSelectedRows] = useState<BlogType[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [currentRecord, setCurrentRecord] = useState<JobTitleType | null>(null);
+  const [currentRecord, setCurrentRecord] = useState<BlogType | null>(null);
   const [query, setQuery] = useState<string>("");
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
-  const [deleteRecord, setDeleteRecord] = useState<JobTitleType | null>(null);
-
+  const [deleteRecord, setDeleteRecord] = useState<BlogType | null>(null);
+  const [editorValue, setEditorValue] = useState<string>("");
+  const handleEditorChange = (value: string) => {
+    setEditorValue(value);
+  };
   const {
     control,
     handleSubmit,
     reset,
     setValue,
     formState: { errors },
-  } = useForm<JobTitleType>();
+  } = useForm<BlogType>();
   useEffect(() => {
-    setValue("name", currentRecord?.name || "");
+    setValue("title", currentRecord?.title || "");
+    setEditorValue(currentRecord?.content || "");
   }, [currentRecord]);
 
-  const onSubmit: SubmitHandler<JobTitleType> = async (data) => {
+  const onSubmit: SubmitHandler<BlogType> = async (data) => {
     if (currentRecord) {
-      await jobTitleApi
-        .update({ name: data?.name }, currentRecord?._id)
+      await blogApi
+        .update(
+          { title: data?.title, content: editorValue },
+          currentRecord?._id
+        )
         .then((res) => {
           if (res) {
             toast.success("Lưu thành công");
@@ -50,8 +68,8 @@ function Blogs() {
         })
         .catch(() => toast.error("Lưu thất bại"));
     } else {
-      await jobTitleApi
-        .create({ name: data?.name })
+      await blogApi
+        .create({ title: data?.title, content: editorValue })
         .then((res) => {
           if (res) {
             toast.success("Lưu thành công");
@@ -66,13 +84,13 @@ function Blogs() {
 
   const params = { page, pageSize, search: query };
 
-  const { data, isLoading, mutate } = useFetchJobtitle(params);
+  const { data, isLoading, mutate } = useFetchBlogs(params);
 
   const handlePageChange = (page: number) => {
     setPage(page);
   };
 
-  const handleEdit = (record: JobTitleType) => {
+  const handleEdit = (record: BlogType) => {
     setCurrentRecord(record);
     setIsModalVisible(true);
   };
@@ -94,7 +112,7 @@ function Blogs() {
     }
     setIsConfirmModalVisible(false);
   };
-  const handleMultiDelete = async (arrRecord: JobTitleType[]) => {
+  const handleMultiDelete = async (arrRecord: BlogType[]) => {
     try {
       const deletePromises = arrRecord.map((item) =>
         jobTitleApi.delete(item._id)
@@ -112,23 +130,36 @@ function Blogs() {
     }
   };
 
-  const handleDeleteSingle = (record: JobTitleType) => {
+  const handleDeleteSingle = (record: BlogType) => {
     setDeleteRecord(record);
     setIsConfirmModalVisible(true);
   };
 
   const rowSelection = {
     selectedRowKeys: selectedRows.map((user) => user._id),
-    onChange: (_selectedRowKeys: React.Key[], selectedRows: JobTitleType[]) => {
+    onChange: (_selectedRowKeys: React.Key[], selectedRows: BlogType[]) => {
       setSelectedRows(selectedRows);
     },
   };
 
   const columns = [
     {
-      title: "Tên chức danh",
-      dataIndex: "name",
-      key: "name",
+      title: "Tiêu đề bài viết",
+      dataIndex: "title",
+      key: "title",
+      width: "30%",
+    },
+    {
+      title: "Nội dung bài viết",
+      dataIndex: "content",
+      key: "content",
+      render: (text: string) => (
+        <div
+          className="line-clamp-4"
+          dangerouslySetInnerHTML={{ __html: text }}
+        />
+      ),
+      width: "30%",
     },
     {
       title: "Ngày tạo",
@@ -145,7 +176,7 @@ function Blogs() {
     {
       title: "Hành động",
       key: "actions",
-      render: (_: any, record: JobTitleType) => (
+      render: (_: any, record: BlogType) => (
         <Space size="middle">
           <Button
             icon={<EditOutlined />}
@@ -201,14 +232,14 @@ function Blogs() {
       )}
       <Table
         rowSelection={rowSelection}
-        dataSource={data?.jobs}
+        dataSource={data?.posts}
         columns={columns}
         rowKey="_id"
         loading={isLoading}
         pagination={{
           current: page,
           pageSize,
-          total: data?.totalJobs || 0,
+          total: data?.totalPosts || 0,
           onChange: handlePageChange,
         }}
       />
@@ -219,11 +250,11 @@ function Blogs() {
         footer={null}
         centered
         closable={false}
-        width={500}
+        width={800}
       >
-        <div className="flex flex-col gap-[24px]">
+        <div className="flex flex-col gap-[24px] max-h-[500px] overflow-y-auto">
           <h3 className="text-[20px] font-semibold text-center">
-            {currentRecord ? "Sửa chức danh" : "Thêm mới chức danh"}
+            {currentRecord ? "Sửa bài viết" : "Thêm mới bài viết"}
           </h3>
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -231,15 +262,21 @@ function Blogs() {
           >
             <InputComponent
               isRequired
-              name="name"
+              name="title"
               control={control}
-              label="Tên chức danh"
-              placeholder="Nhập tên chức danh"
+              label="Tiêu đề bài viết"
+              placeholder="Nhập tiêu đề bài viết"
               rules={formValidation.positionName}
-              errors={errors.name}
+              errors={errors.title}
             />
-
-            <ButtonCustom htmlType="submit">Lưu</ButtonCustom>
+            <Editor
+              value={editorValue}
+              onChange={handleEditorChange}
+              className="text-[16px] text-black"
+            />
+            <ButtonCustom htmlType="submit" className="sticky bottom-0 z-10">
+              Lưu
+            </ButtonCustom>
           </form>
         </div>
       </Modal>

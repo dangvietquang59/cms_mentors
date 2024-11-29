@@ -4,11 +4,15 @@ import { getProfile } from "../utils/functions/getProfile";
 import { Popover } from "antd";
 import { CiLogout } from "react-icons/ci";
 import { CgProfile } from "react-icons/cg";
+import { useNavigate } from "react-router-dom";
+import paths from "../utils/constants/paths";
 
 const Header = () => {
   const profile = getProfile();
+  const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.clear();
+    navigate(paths.LOGIN);
   };
   const content = (
     <div className="w-[200px]">
