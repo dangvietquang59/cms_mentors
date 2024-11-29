@@ -14,5 +14,6 @@ const urls = {
   CREATE_NEW_POST: "create-new-post",
   DELETE_POST: "delete-post",
   UPDATE_POST: "update-post",
+  TAGS: "tags",
 };
 export default urls;

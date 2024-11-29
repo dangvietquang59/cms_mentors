@@ -7,6 +7,7 @@ import { FiInbox } from "react-icons/fi";
 import { TiMessages } from "react-icons/ti";
 import { GiTechnoHeart } from "react-icons/gi";
 import { SiSubtitleedit } from "react-icons/si";
+import { BiCategoryAlt } from "react-icons/bi";
 
 const Sidebar = () => {
   const sidebars = [
@@ -19,6 +20,11 @@ const Sidebar = () => {
       title: "Quản lý người dùng",
       icon: <FaUsers />,
       path: paths.USERS,
+    },
+    {
+      title: "Quản lý danh mục bài viết",
+      icon: <BiCategoryAlt />,
+      path: paths.CATEGORY_BLOG,
     },
     {
       title: "Quản lý bài viết",

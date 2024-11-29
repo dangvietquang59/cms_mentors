@@ -9,6 +9,7 @@ import Chats from "../pages/Chats";
 import JobTitle from "../pages/Jobtitle";
 import Technologies from "../pages/Technologies";
 import Dashboard from "../pages/Dashboard";
+import CategoryBlog from "../pages/CategoryBlog";
 
 const AppRoutes = () => {
   return (
@@ -17,6 +18,7 @@ const AppRoutes = () => {
         <Route path="*" element={<Notfound />} />
         <Route path={paths.USERS} element={<Users />} />
         <Route path={paths.DASHBOARD} element={<Dashboard />} />
+        <Route path={paths.CATEGORY_BLOG} element={<CategoryBlog />} />
         <Route path={paths.BLOGS} element={<Blogs />} />
         <Route path={paths.CHATS} element={<Chats />} />
         <Route path={paths.JOB_TITLES} element={<JobTitle />} />
