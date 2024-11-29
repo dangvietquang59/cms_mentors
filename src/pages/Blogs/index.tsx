@@ -1,16 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import {
-  Breadcrumb,
-  Button,
-  message,
-  Modal,
-  Space,
-  Table,
-  Typography,
-} from "antd";
+import { Breadcrumb, Button, message, Modal, Space, Table } from "antd";
 import { useEffect, useState } from "react";
 import { formatDate } from "../../utils/functions/formatDate";
 import SearchCustom from "../../components/SearchCustom";
@@ -127,6 +118,7 @@ function Blogs() {
       setSelectedRows([]);
     } catch (error) {
       message.error("Đã xảy ra lỗi trong quá trình xóa.");
+      console.log(error);
     }
   };
 
