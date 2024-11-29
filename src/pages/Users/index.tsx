@@ -110,7 +110,7 @@ function Users() {
       ),
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_: any, user: UserType) => (
         <Space size="middle">

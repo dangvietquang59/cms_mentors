@@ -15,7 +15,7 @@ import { JobTitleType } from "../../types/common/jobTitle";
 import { useFetchJobtitle } from "../../apis/swr/useFetchJobtitle";
 import jobTitleApi from "../../apis/axios/jobTitleApi";
 
-function Blogs() {
+function JobTitle() {
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(10);
   const [selectedRows, setSelectedRows] = useState<JobTitleType[]>([]);
@@ -177,7 +177,7 @@ function Blogs() {
             title: "Dashboard",
           },
           {
-            title: "Quản lý bài viết",
+            title: "Quản lý chức danh",
           },
         ]}
       />
@@ -255,4 +255,4 @@ function Blogs() {
   );
 }
 
-export default Blogs;
+export default JobTitle;

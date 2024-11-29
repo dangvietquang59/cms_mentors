@@ -3,27 +3,31 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Breadcrumb, Button, message, Modal, Space, Table } from "antd";
 import { useEffect, useState } from "react";
+import { useFetchTechnologies } from "../../apis/swr/useFetchTechnologies";
+import { TechnologiesType } from "../../types/common/technologies";
 import { formatDate } from "../../utils/functions/formatDate";
 import SearchCustom from "../../components/SearchCustom";
 import InputComponent from "../../components/InputCustom";
 import ButtonCustom from "../../components/ButtonCustom";
 import { formValidation } from "../../utils/constants/formValidation";
 import { SubmitHandler, useForm } from "react-hook-form";
+import technologiesApi from "../../apis/axios/technologiesApi";
 import toast from "react-hot-toast";
 import ConfirmModal from "../../components/ConfirmModal";
-import { JobTitleType } from "../../types/common/jobTitle";
-import { useFetchJobtitle } from "../../apis/swr/useFetchJobtitle";
-import jobTitleApi from "../../apis/axios/jobTitleApi";
 
-function Blogs() {
+function Technologies() {
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(10);
-  const [selectedRows, setSelectedRows] = useState<JobTitleType[]>([]);
+  const [selectedRows, setSelectedRows] = useState<TechnologiesType[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [currentRecord, setCurrentRecord] = useState<JobTitleType | null>(null);
+  const [currentRecord, setCurrentRecord] = useState<TechnologiesType | null>(
+    null
+  );
   const [query, setQuery] = useState<string>("");
-  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
-  const [deleteRecord, setDeleteRecord] = useState<JobTitleType | null>(null);
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false); // State for confirm modal
+  const [deleteRecord, setDeleteRecord] = useState<TechnologiesType | null>(
+    null
+  ); // Store record to delete
 
   const {
     control,
@@ -31,14 +35,14 @@ function Blogs() {
     reset,
     setValue,
     formState: { errors },
-  } = useForm<JobTitleType>();
+  } = useForm<TechnologiesType>();
   useEffect(() => {
     setValue("name", currentRecord?.name || "");
   }, [currentRecord]);
 
-  const onSubmit: SubmitHandler<JobTitleType> = async (data) => {
+  const onSubmit: SubmitHandler<TechnologiesType> = async (data) => {
     if (currentRecord) {
-      await jobTitleApi
+      await technologiesApi
         .update({ name: data?.name }, currentRecord?._id)
         .then((res) => {
           if (res) {
@@ -50,7 +54,7 @@ function Blogs() {
         })
         .catch(() => toast.error("Lưu thất bại"));
     } else {
-      await jobTitleApi
+      await technologiesApi
         .create({ name: data?.name })
         .then((res) => {
           if (res) {
@@ -66,13 +70,13 @@ function Blogs() {
 
   const params = { page, pageSize, search: query };
 
-  const { data, isLoading, mutate } = useFetchJobtitle(params);
+  const { data, isLoading, mutate } = useFetchTechnologies(params);
 
   const handlePageChange = (page: number) => {
     setPage(page);
   };
 
-  const handleEdit = (record: JobTitleType) => {
+  const handleEdit = (record: TechnologiesType) => {
     setCurrentRecord(record);
     setIsModalVisible(true);
   };
@@ -84,7 +88,7 @@ function Blogs() {
 
   const handleDelete = async () => {
     if (deleteRecord) {
-      await jobTitleApi.delete(deleteRecord._id).then((res) => {
+      await technologiesApi.delete(deleteRecord._id).then((res) => {
         if (res) {
           mutate();
         }
@@ -94,15 +98,15 @@ function Blogs() {
     }
     setIsConfirmModalVisible(false);
   };
-  const handleMultiDelete = async (arrRecord: JobTitleType[]) => {
+  const handleMultiDelete = async (arrRecord: TechnologiesType[]) => {
     try {
       const deletePromises = arrRecord.map((item) =>
-        jobTitleApi.delete(item._id)
+        technologiesApi.delete(item._id)
       );
 
       await Promise.all(deletePromises);
 
-      message.success("Xóa thành công tất cả chức danh đã chọn.");
+      message.success("Xóa thành công tất cả công nghệ đã chọn.");
 
       mutate();
 
@@ -112,21 +116,24 @@ function Blogs() {
     }
   };
 
-  const handleDeleteSingle = (record: JobTitleType) => {
+  const handleDeleteSingle = (record: TechnologiesType) => {
     setDeleteRecord(record);
     setIsConfirmModalVisible(true);
   };
 
   const rowSelection = {
     selectedRowKeys: selectedRows.map((user) => user._id),
-    onChange: (_selectedRowKeys: React.Key[], selectedRows: JobTitleType[]) => {
+    onChange: (
+      _selectedRowKeys: React.Key[],
+      selectedRows: TechnologiesType[]
+    ) => {
       setSelectedRows(selectedRows);
     },
   };
 
   const columns = [
     {
-      title: "Tên chức danh",
+      title: "Tên công nghệ",
       dataIndex: "name",
       key: "name",
     },
@@ -145,7 +152,7 @@ function Blogs() {
     {
       title: "Hành động",
       key: "actions",
-      render: (_: any, record: JobTitleType) => (
+      render: (_: any, record: TechnologiesType) => (
         <Space size="middle">
           <Button
             icon={<EditOutlined />}
@@ -177,7 +184,7 @@ function Blogs() {
             title: "Dashboard",
           },
           {
-            title: "Quản lý bài viết",
+            title: "Quản lý công nghệ",
           },
         ]}
       />
@@ -201,14 +208,14 @@ function Blogs() {
       )}
       <Table
         rowSelection={rowSelection}
-        dataSource={data?.jobs}
+        dataSource={data?.technologies}
         columns={columns}
         rowKey="_id"
         loading={isLoading}
         pagination={{
           current: page,
           pageSize,
-          total: data?.totalJobs || 0,
+          total: data?.totalItems || 0,
           onChange: handlePageChange,
         }}
       />
@@ -223,7 +230,7 @@ function Blogs() {
       >
         <div className="flex flex-col gap-[24px]">
           <h3 className="text-[20px] font-semibold text-center">
-            {currentRecord ? "Sửa chức danh" : "Thêm mới chức danh"}
+            {currentRecord ? "Sửa công nghệ" : "Thêm mới công nghệ"}
           </h3>
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -233,8 +240,8 @@ function Blogs() {
               isRequired
               name="name"
               control={control}
-              label="Tên chức danh"
-              placeholder="Nhập tên chức danh"
+              label="Tên công nghệ"
+              placeholder="Nhập tên công nghệ"
               rules={formValidation.positionName}
               errors={errors.name}
             />
@@ -255,4 +262,4 @@ function Blogs() {
   );
 }
 
-export default Blogs;
+export default Technologies;

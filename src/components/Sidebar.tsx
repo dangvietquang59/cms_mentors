@@ -5,6 +5,8 @@ import { AiOutlineDashboard } from "react-icons/ai";
 import { FaUsers } from "react-icons/fa";
 import { FiInbox } from "react-icons/fi";
 import { TiMessages } from "react-icons/ti";
+import { GiTechnoHeart } from "react-icons/gi";
+import { SiSubtitleedit } from "react-icons/si";
 
 const Sidebar = () => {
   const sidebars = [
@@ -25,13 +27,13 @@ const Sidebar = () => {
     },
     {
       title: "Quản lý chức danh",
-      icon: <FiInbox />,
-      path: paths.BLOGS,
+      icon: <SiSubtitleedit />,
+      path: paths.JOB_TITLES,
     },
     {
       title: "Quản lý công nghệ",
-      icon: <FiInbox />,
-      path: paths.BLOGS,
+      icon: <GiTechnoHeart />,
+      path: paths.TECHNOLOGIES,
     },
     {
       title: "Quản lý tin nhắn",
