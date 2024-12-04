@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Notfound from "../pages/Notfound";
 import RootLayout from "../Layouts/RootLayout";
 import Login from "../pages/Login";
@@ -10,11 +10,20 @@ import JobTitle from "../pages/Jobtitle";
 import Technologies from "../pages/Technologies";
 import Dashboard from "../pages/Dashboard";
 import CategoryBlog from "../pages/CategoryBlog";
+import { useEffect } from "react";
+import { getAccessToken } from "../utils/functions/getAccessToken";
 
 const AppRoutes = () => {
+  const token = getAccessToken();
+  useEffect(() => {
+    if (!token) {
+      <Navigate to={paths.LOGIN} />;
+    }
+  });
   return (
     <Routes>
       <Route element={<RootLayout />}>
+        <Route path="/" element={<Navigate to={paths.LOGIN} replace />} />
         <Route path="*" element={<Notfound />} />
         <Route path={paths.USERS} element={<Users />} />
         <Route path={paths.DASHBOARD} element={<Dashboard />} />

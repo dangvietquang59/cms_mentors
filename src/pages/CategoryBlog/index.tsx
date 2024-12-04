@@ -192,7 +192,7 @@ function CategoryBlog() {
             title: "Dashboard",
           },
           {
-            title: "Quản lý danh mục sản phẩm",
+            title: "Quản lý danh mục bài viết",
           },
         ]}
       />
@@ -200,7 +200,7 @@ function CategoryBlog() {
         <SearchCustom
           value={query}
           setValue={setQuery}
-          className="max-w-[300px]"
+          className="max-w-[350px]"
         />
         <Button type="primary" className="max-w-[200px]" onClick={handleAddNew}>
           Thêm mới
@@ -239,8 +239,8 @@ function CategoryBlog() {
         <div className="flex flex-col gap-[24px]">
           <h3 className="text-[20px] font-semibold text-center">
             {currentRecord
-              ? "Sửa danh mục sản phẩm"
-              : "Thêm mới danh mục sản phẩm"}
+              ? "Sửa danh mục bài viết"
+              : "Thêm mới danh mục bài viết"}
           </h3>
           <form
             onSubmit={handleSubmit(onSubmit)}

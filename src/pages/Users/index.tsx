@@ -20,6 +20,8 @@ import { formatNumeric } from "../../utils/functions/formatNumeric";
 import images from "../../assets/images";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import UserView from "../../components/UserView";
+import SearchCustom from "../../components/SearchCustom";
+import UserForm from "../../components/Form/UserForm";
 
 function Users() {
   const [page, setPage] = useState<number>(1);
@@ -27,9 +29,20 @@ function Users() {
   const [selectedRows, setSelectedRows] = useState<UserType[]>([]); // To store selected rows
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+  const [query, setQuery] = useState<string>("");
+  const [openForm, setOpenForm] = useState(false);
 
-  const params = { page, pageSize };
-  const { data, isLoading } = useFetchUsers(params);
+  const handleOk = () => {
+    setOpenForm(false);
+    mutate();
+  };
+
+  const handleCancel = () => {
+    setOpenForm(false);
+  };
+
+  const params = { page, pageSize, search: query };
+  const { data, isLoading, mutate } = useFetchUsers(params);
 
   const handleDelete = (_id: string) => {
     message.success("User deleted successfully!");
@@ -146,7 +159,7 @@ function Users() {
   ];
 
   return (
-    <div className="flex flex-col gap-[24px] p-4">
+    <div className="flex flex-col gap-[24px]">
       <Breadcrumb
         items={[
           {
@@ -158,6 +171,16 @@ function Users() {
         ]}
       />
 
+      <div className="flex items-center justify-between">
+        <SearchCustom
+          value={query}
+          setValue={setQuery}
+          className="max-w-[350px]"
+        />
+        <Button type="primary" onClick={() => setOpenForm(true)}>
+          Thêm mới
+        </Button>
+      </div>
       {/* Table with Row Selection */}
       <Table
         rowSelection={rowSelection} // Row Selection for selecting multiple rows
@@ -186,6 +209,16 @@ function Users() {
           <UserView user={currentUser} />
         </Modal>
       )}
+      <Modal
+        open={openForm}
+        footer={null}
+        centered
+        onCancel={handleCancel}
+        onOk={handleOk}
+        closable={false}
+      >
+        <UserForm handleOk={() => handleOk()} />
+      </Modal>
     </div>
   );
 }

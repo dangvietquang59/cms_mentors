@@ -7,6 +7,8 @@ import { UserResponseType } from "../../types/response/user";
 
 interface ParamsProps {
   page: number;
+  pageSize: number;
+  search: string;
 }
 
 export const useFetchUsers = (params: ParamsProps) => {

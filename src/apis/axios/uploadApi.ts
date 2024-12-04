@@ -9,7 +9,7 @@ const uploadApi = {
 
     try {
       const res = await axiosClient.post<any>(
-        `${urls.UPLOADS}/${urls.UPLOAD}`,
+        `${urls.V2}/${urls.UPLOAD}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

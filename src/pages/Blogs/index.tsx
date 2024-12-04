@@ -208,7 +208,7 @@ function Blogs() {
         <SearchCustom
           value={query}
           setValue={setQuery}
-          className="max-w-[300px]"
+          className="max-w-[350px]"
         />
         <Button type="primary" className="max-w-[200px]" onClick={handleAddNew}>
           Thêm mới
