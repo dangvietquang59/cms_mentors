@@ -17,5 +17,8 @@ const urls = {
   TAGS: "tags",
   V2: "v2",
   REGISTER: "register",
+  CHAT_GROUP: "chat-groups",
+  MESSAGES: "messages",
+  GROUP: "group",
 };
 export default urls;
