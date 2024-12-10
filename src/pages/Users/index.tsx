@@ -25,7 +25,7 @@ import UserForm from "../../components/Form/UserForm";
 
 function Users() {
   const [page, setPage] = useState<number>(1);
-  const [pageSize] = useState<number>(10);
+  const [pageSize] = useState<number>(12);
   const [selectedRows, setSelectedRows] = useState<UserType[]>([]); // To store selected rows
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);

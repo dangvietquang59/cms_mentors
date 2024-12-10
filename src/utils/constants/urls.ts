@@ -20,5 +20,8 @@ const urls = {
   CHAT_GROUP: "chat-groups",
   MESSAGES: "messages",
   GROUP: "group",
+  STATISTICS: "statistics",
+  BOOKINGS: "bookings",
+  REVENUE_BY_RANGE_DAY: "revenue-by-range-day",
 };
 export default urls;
