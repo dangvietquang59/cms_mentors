@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, message, Modal, Space, Table } from "antd";
+import { Breadcrumb, Button, message, Modal, Space, Table, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { formatDate } from "../../utils/functions/formatDate";
 import SearchCustom from "../../components/SearchCustom";
@@ -16,7 +16,10 @@ import { useFetchBlogs } from "../../apis/swr/useFetchBlogs";
 import { BlogType } from "../../types/common/blog";
 import Editor from "../../components/Editor";
 import blogApi from "../../apis/axios/blogApi";
-
+import { CiSearch } from "react-icons/ci";
+import { useFetchCategory } from "../../apis/swr/useFetchCategory";
+import { CategoryType } from "../../types/response/category";
+import { FaTrash } from "react-icons/fa6";
 function Blogs() {
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(10);
@@ -30,6 +33,51 @@ function Blogs() {
   const handleEditorChange = (value: string) => {
     setEditorValue(value);
   };
+  const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [queryCategory, setQueryCategory] = useState<string>("");
+
+  const CategoryParams = {
+    page: 1,
+    pageSize,
+    search: queryCategory,
+  };
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const { data: categoryData, isLoading: categoryLoading } =
+    useFetchCategory(CategoryParams);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQueryCategory(e.target.value);
+    setIsDropdownOpen(true);
+  };
+
+  const handleCategorySelect = (category: CategoryType) => {
+    const isSelected = selectedCategory?.some(
+      (item) => item?._id === category?._id
+    );
+    if (isSelected) {
+      return;
+    } else {
+      setSelectedCategory((prev) => [...prev, category]);
+      setQueryCategory(category.name);
+      setIsDropdownOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      if (!(event.target as HTMLElement).closest(".category-dropdown")) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+  useEffect(() => {
+    if (categoryData) {
+      setCategories(categoryData?.tags);
+    }
+  }, [categoryData]);
   const {
     control,
     handleSubmit,
@@ -40,13 +88,15 @@ function Blogs() {
   useEffect(() => {
     setValue("title", currentRecord?.title || "");
     setEditorValue(currentRecord?.content || "");
+    setSelectedCategory(currentRecord?.tags || "");
   }, [currentRecord]);
 
   const onSubmit: SubmitHandler<BlogType> = async (data) => {
+    const arrTag = selectedCategory?.map((item) => item?._id) || [];
     if (currentRecord) {
       await blogApi
         .update(
-          { title: data?.title, content: editorValue },
+          { title: data?.title, tags: arrTag, content: editorValue },
           currentRecord?._id
         )
         .then((res) => {
@@ -54,19 +104,19 @@ function Blogs() {
             toast.success("Lưu thành công");
             reset();
             setIsModalVisible(false);
-            mutate();
+            blogMutate();
           }
         })
         .catch(() => toast.error("Lưu thất bại"));
     } else {
       await blogApi
-        .create({ title: data?.title, content: editorValue })
+        .create({ title: data?.title, tags: arrTag, content: editorValue })
         .then((res) => {
           if (res) {
             toast.success("Lưu thành công");
             reset();
             setIsModalVisible(false);
-            mutate();
+            blogMutate();
           }
         })
         .catch(() => toast.error("Lưu thất bại"));
@@ -75,7 +125,11 @@ function Blogs() {
 
   const params = { page, pageSize, search: query };
 
-  const { data, isLoading, mutate } = useFetchBlogs(params);
+  const {
+    data: blogData,
+    isLoading: blogLoading,
+    mutate: blogMutate,
+  } = useFetchBlogs(params);
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -95,7 +149,7 @@ function Blogs() {
     if (deleteRecord) {
       await jobTitleApi.delete(deleteRecord._id).then((res) => {
         if (res) {
-          mutate();
+          blogMutate();
         }
       });
       message.success("Xóa thành công");
@@ -113,7 +167,7 @@ function Blogs() {
 
       message.success("Xóa thành công tất cả chức danh đã chọn.");
 
-      mutate();
+      blogMutate();
 
       setSelectedRows([]);
     } catch (error) {
@@ -126,7 +180,12 @@ function Blogs() {
     setDeleteRecord(record);
     setIsConfirmModalVisible(true);
   };
-
+  const handleRemoveTag = (category: CategoryType) => {
+    const newArr = selectedCategory.filter(
+      (item) => item?._id !== category?._id
+    );
+    setSelectedCategory(newArr);
+  };
   const rowSelection = {
     selectedRowKeys: selectedRows.map((user) => user._id),
     onChange: (_selectedRowKeys: React.Key[], selectedRows: BlogType[]) => {
@@ -140,6 +199,19 @@ function Blogs() {
       dataIndex: "title",
       key: "title",
       width: "30%",
+    },
+    {
+      title: "Danh mục bài viết",
+      key: "tags",
+      render: (record: BlogType) => (
+        <div className="flex flex-col gap-[8px]">
+          {record?.tags?.map((tag, index) => (
+            <Tag color="blue" key={index} className="w-fit">
+              {tag?.name}
+            </Tag>
+          ))}
+        </div>
+      ),
     },
     {
       title: "Nội dung bài viết",
@@ -224,14 +296,14 @@ function Blogs() {
       )}
       <Table
         rowSelection={rowSelection}
-        dataSource={data?.posts}
+        dataSource={blogData?.posts}
         columns={columns}
         rowKey="_id"
-        loading={isLoading}
+        loading={blogLoading}
         pagination={{
           current: page,
           pageSize,
-          total: data?.totalPosts || 0,
+          total: blogData?.totalPosts || 0,
           onChange: handlePageChange,
         }}
       />
@@ -244,7 +316,7 @@ function Blogs() {
         closable={false}
         width={800}
       >
-        <div className="flex flex-col gap-[24px] max-h-[500px] overflow-y-auto">
+        <div className="flex flex-col gap-[24px] max-h-[500px] overflow-y-auto relative">
           <h3 className="text-[20px] font-semibold text-center">
             {currentRecord ? "Sửa bài viết" : "Thêm mới bài viết"}
           </h3>
@@ -261,6 +333,54 @@ function Blogs() {
               rules={formValidation.positionName}
               errors={errors.title}
             />
+            <div className="h-[200px]">
+              <div className="p-[10px] rounded-[8px] border shadow-sm flex items-center gap-[10px] w-full">
+                <input
+                  className="flex-1 focus-within:outline-none"
+                  placeholder="Danh mục bài viết"
+                  value={queryCategory}
+                  onChange={handleInputChange}
+                  onClick={() => setIsDropdownOpen(true)}
+                />
+                <CiSearch className="size-[20px]" />
+              </div>
+              <div className="mt-[10px] flex flex-wrap items-center gap-[10px]">
+                {selectedCategory?.length > 0 &&
+                  selectedCategory?.map((item, index) => (
+                    <div
+                      key={index}
+                      className="p-[10px] bg-[#f0f0f0] w-fit rounded-[10px] flex items-center gap-[4px] min-w-[100px] justify-between"
+                    >
+                      <p>{item?.name}</p>
+                      <button
+                        className="text-red-500"
+                        type="button"
+                        onClick={() => handleRemoveTag(item)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+            {/* Dropdown danh sách kết quả tìm kiếm */}
+            {isDropdownOpen && (
+              <div className="bg-white shadow-md border rounded-[8px] absolute bottom-[150px] w-full min-h-[150px] max-h-[300px] overflow-auto category-dropdown">
+                {categoryLoading ? (
+                  <div>Đang tải...</div>
+                ) : (
+                  categories.map((category) => (
+                    <div
+                      key={category._id}
+                      className="p-2 cursor-pointer hover:bg-gray-200"
+                      onClick={() => handleCategorySelect(category)}
+                    >
+                      {category.name}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
             <Editor
               value={editorValue}
               onChange={handleEditorChange}

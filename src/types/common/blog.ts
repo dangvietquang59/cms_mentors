@@ -1,3 +1,4 @@
+import { TagType } from "antd";
 import { UserType } from "./auth";
 
 export type BlogType = {
@@ -6,7 +7,7 @@ export type BlogType = {
   content: string;
   userId: UserType;
   slug: string;
-  tags: [];
+  tags: TagType[];
   likes: [];
   createdAt: string;
   updatedAt: string;

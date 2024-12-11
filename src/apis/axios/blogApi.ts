@@ -5,6 +5,7 @@ import axiosClient from "./axiosClient";
 interface BlogProps {
   title: string;
   content: string;
+  tags: string[];
 }
 const blogApi = {
   async create(payload: BlogProps) {

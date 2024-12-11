@@ -7,7 +7,7 @@ import { CategoryResponseType } from "../../types/response/category";
 
 interface ParamsProps {
   page: number;
-  search: string;
+  search?: string;
   pageSize: number;
 }
 export const useFetchCategory = (params: ParamsProps) => {
