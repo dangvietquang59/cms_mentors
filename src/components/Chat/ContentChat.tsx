@@ -12,7 +12,7 @@ import { useFetchMessages } from "../../apis/swr/useFetchMessage";
 import messageApi from "../../apis/axios/messageApi";
 import icons from "../../assets/icons";
 
-const socket = io("http://localhost:3001");
+const socket = io(import.meta.env.VITE_BASE_URL);
 
 function ContentChat() {
   const [msg, setMsg] = useState<string>("");
